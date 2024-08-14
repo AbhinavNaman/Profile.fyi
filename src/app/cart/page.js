@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { saveCartToFirebase } from '../../utils/firebase';
 import { useUser } from '@clerk/nextjs';
 import { useState } from 'react';
-import { CircleMinus, CircleMinusIcon, CirclePlus, CirclePlusIcon, Frown, Trash2 } from 'lucide-react';
+import { CircleMinus, CircleMinusIcon, CirclePlus, CirclePlusIcon, Frown, ShoppingCart, Trash2 } from 'lucide-react';
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCartStore();
@@ -14,6 +14,7 @@ export default function CartPage() {
   const [finalTotal, setFinalTotal] = useState(null);
   const [congratsMessage, setCongratsMessage] = useState('');
   const [thankYouMessage, setThankYouMessage] = useState('');
+  const [showFeedback, setShowFeedback] = useState(false);
 
   console.log(cart);
 
@@ -43,6 +44,12 @@ export default function CartPage() {
           console.log('Cart saved successfully.');
           clearCart();  // Clear the cart after saving
           setThankYouMessage('Thank you for shopping! Your cart has been saved.');
+          setShowFeedback(true);
+
+      // Hide the feedback after 1.5 seconds
+      setTimeout(() => {
+        setShowFeedback(false);
+      }, 1000);
         })
         .catch((error) => {
           console.error('Error saving cart:', error);
@@ -55,31 +62,38 @@ export default function CartPage() {
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row">
-        <div className="w-full md:w-2/3 bg-white shadow-md rounded-md">
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex flex-col md:flex-row mt-8">
+        <div className="w-full md:w-2/3 text-white shadow-md rounded-md">
           {cart.length === 0 ? (
             thankYouMessage ? (
+              <>
               <p className="text-center text-green-600">{thankYouMessage}</p>
+              {showFeedback && (
+              <div className="absolute top-0 left-0 w-full h-full bg-green-500 text-white flex items-center justify-center rounded-md opacity-90 animate-pulse">
+          <ShoppingCart size={48} />
+        </div>
+         )}
+              </>
             ) : (
               <>
-              <p className="text-center text-gray-600 m-12">Your cart is empty. </p>
-              <div className="text-center"><Frown /></div>
+              <p className="text-center text-gray-600 m-12 ">Your cart is empty. </p>
+
               </>
             )
           ) : (
             cart.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 border-b">
+              <div key={item.id} className="flex items-center justify-between p-4 border border-gray-500 rounded-md mb-4">
                 <div className="flex items-center">
                   <img src={item?.image} alt={item?.title} className="h-20 w-20 object-cover rounded-md" />
                   <div className="ml-4">
-                    <h2 className="text-lg font-semibold text-black">{item?.title}</h2>
-                    <p className="text-gray-600">${item?.price}</p>
+                    <h2 className="text-lg font-semibold text-white">{item?.title}</h2>
+                    <p className="text-gray-100">${item?.price}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <button
-                    className="text-black py-2 rounded"
+                    className="text-white py-2 rounded hover:scale-125"
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
                     disabled={item.quantity === 1}
                   >
@@ -93,7 +107,7 @@ export default function CartPage() {
                     className="mx-2 w-12 text-center  rounded text-black"
                   />
                   <button
-                    className="text-black py-2 rounded"
+                    className="text-white py-2 rounded hover:scale-125"
                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
                   >
                     <CirclePlusIcon />
@@ -102,7 +116,7 @@ export default function CartPage() {
                     className="ml-4 text-red py-2 px-4 rounded"
                     onClick={() => removeFromCart(item.id)}
                   >
-                    <Trash2 className="text-red-700"/>
+                    <Trash2 className="text-red-700 hover:scale-125"/>
                   </button>
                 </div>
               </div>
@@ -122,27 +136,27 @@ export default function CartPage() {
               )}
               {congratsMessage && <p className="mt-2 text-green-600">{congratsMessage}</p>}
               <button
-                className="mt-4 w-full bg-green-500 text-white py-2 px-6 rounded-full hover:bg-green-600"
+                className="mt-4 w-full bg-green-500 text-white py-2 px-6 rounded-full hover:bg-green-600 hover:scale-105"
                 onClick={calculateDiscount}
               >
                 Apply Discount
               </button>
               <button
-                className="mt-4 w-full bg-blue-500 text-white py-2 px-6 rounded hover:bg-blue-600"
+                className="mt-4 w-full bg-blue-500 text-white py-2 px-6 rounded hover:bg-blue-600 hover:scale-105"
                 onClick={handleSave}
               >
                 Checkout
               </button>
               <div className="flex gap-4">
               <button
-                className="mt-4 w-full bg-gray-500 text-white py-2 px-6 rounded hover:bg-gray-600"
+                className="mt-4 w-full bg-gray-500 text-white py-2 px-6 rounded hover:bg-gray-600 hover:scale-105"
               >
                 <Link href="/">
                   Home
                 </Link>
               </button>
               <button
-                className="mt-4 w-full bg-red-500 text-white py-2 px-6 rounded hover:bg-red-600"
+                className="mt-4 w-full bg-red-500 text-white py-2 px-6 rounded hover:bg-red-600 hover:scale-105"
                 onClick={() => {
                   clearCart();
                   setCongratsMessage('');
