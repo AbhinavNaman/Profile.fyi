@@ -2,9 +2,12 @@
 import { useEffect, useState } from 'react';
 import useCartStore from '../store/store';
 import { ShoppingCart } from 'lucide-react';
+import { useUser, useClerk, UserButton } from '@clerk/nextjs';
+import Link from 'next/link';
 
 export default function ProductCard({ product }) {
   const { cart, addToCart } = useCartStore();
+  const { user, isSignedIn } = useUser();
 
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
@@ -65,6 +68,8 @@ export default function ProductCard({ product }) {
         </div>
       </div>
 
+ {isSignedIn ? (
+
       <button
         className={`mt-4 py-2 px-4 w-full rounded hover:scale-105 ${
           isInCart ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
@@ -74,6 +79,15 @@ export default function ProductCard({ product }) {
       >
         {isInCart ? 'In Cart' : 'Add to Cart'}
       </button>
+ ): (
+  <button
+        className={`mt-4 py-2 px-4 w-full rounded hover:scale-105 bg-green-500 text-white hover:bg-green-600 }`}
+      >
+       <Link href="/sign-in" className="text-white text-lg mx-4">
+                Sign In
+              </Link>
+      </button>
+ )}
 
       {/* Feedback Animation */}
       {showFeedback && (
